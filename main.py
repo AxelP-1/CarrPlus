@@ -592,7 +592,7 @@ def reverbSingleBlock(minDelay,maxDelay,channels,sr=44100,scale=1):
     delays.append(sympy.prime(random.randint(minDelay,maxDelay)))
   block=[0]*int(max(delays)*scale*sr)
   for i in delays:
-    block[int(i*sr*scale)-1]=random.random/channels
+    block[int(i*sr*scale)-1]=random.random()/channels
   return block
 
 def reverbMultiblock(minDelay,maxDelay,channels,blocks,sr=44100,scale=1):
