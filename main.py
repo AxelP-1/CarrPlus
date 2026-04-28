@@ -49,6 +49,9 @@ class Karplus:
     self.buffer=[0]*len(self.buffer)
     return data
   
+def closest(lst, K):
+  return min(range(len(lst)), key = lambda i: abs(lst[i]-K))
+
 def rhythmicVarispeed(samples,speeds,times,startTime=0,sr=44100):
   if not 0 in times:
     times=[0]+times
