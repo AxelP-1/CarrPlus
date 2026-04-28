@@ -310,16 +310,6 @@ def custom_synth(freq, sampleRate, leng, harmonics):
 
     return taper(wave, 0, sampleRate // 10)
 
-def applyReverb(audio, delay_ms=50, decay=0.5, repeats=5, fs=44100):
-    delay_samples = int(fs * delay_ms / 1000)
-    reverb = np.copy(audio).astype(np.float32)
-
-    for i in range(1, repeats + 1):
-        delayed = np.pad(audio, (delay_samples * i, 0))[:len(audio)]
-        reverb += decay**i * delayed
-    reverb /= np.max(np.abs(reverb))
-    return reverb
-
 def piano(freq, sampleRate, leng):
     t = np.linspace(0, leng, int(sampleRate * leng), endpoint=False)
     wave = 0.6 * np.sin(2 * np.pi * freq * t) + \
