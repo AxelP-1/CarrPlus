@@ -434,9 +434,9 @@ class PedalSystem:
     if n<maxVal and n>maxVal*-1:
       return n
     elif n>0:
-      return maxVal+m.atan((n-maxVal)*rolloverSteepness/maxVal)/rolloverSteepness
+      return maxVal+math.atan((n-maxVal)*rolloverSteepness/maxVal)/rolloverSteepness
     else:
-      return -maxVal+m.atan((n+maxVal)*rolloverSteepness/maxVal)/rolloverSteepness
+      return -maxVal+math.atan((n+maxVal)*rolloverSteepness/maxVal)/rolloverSteepness
 
   def count(self, samples):
     """
@@ -465,7 +465,7 @@ class PedalSystem:
     """
     output=[]
     for k in range(len(sample)):
-      lfo = m.sin(2 * m.pi * speed * (self.time+k) / self.sampleRate)
+      lfo = math.sin(2 * math.pi * speed * (self.time+k) / self.sampleRate)
       y = sample[k] * (1 + depth * lfo)
       output.append(y)
 
@@ -493,9 +493,9 @@ class PedalSystem:
 
     for k in range(len(sample)):
       t = (self.time + k) / self.sampleRate
-      delay = max_delay * m.sin(2 * m.pi * speed * t)
+      delay = max_delay * math.sin(2 * math.pi * speed * t)
       idx = (self.time + k - delay) % len(self.prev) - 1000
-      idx_floor = int(m.floor(idx))
+      idx_floor = int(math.floor(idx))
       idx_ceil = (idx_floor + 1) % len(self.prev)
       frac = idx - idx_floor
       y = (1 - frac) * self.prev[idx_floor] + frac * self.prev[idx_ceil]
