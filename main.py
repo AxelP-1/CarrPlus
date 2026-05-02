@@ -184,7 +184,7 @@ class synth:
     return oscillator*envellope*volume
 
 class vocoder:
-  def __init__(self,carrier,modulator,samplerate,bands,fmx,fmn,smear,order):
+  def __init__(self,carrier,modulator,samplerate,bands,fmn,fmx,smear,order):
     carrier=list(carrier)
     while len(modulator)>len(carrier):
       carrier.append(0)
@@ -194,10 +194,10 @@ class vocoder:
       modulator.append(0)
     self.modulator=modulator
     self.sr=samplerate
-    self.freqRange=(fmx,fmn)
+    self.freqRange=(fmn,fmx)
     self.nbBands=bands
-    r=(fmx/fmn)**(1/bands)
-    edges=[fmn*(r**i) for i in range(bands+1)]
+    r=(fmn/fmx)**(1/bands)
+    edges=[fmx*(r**i) for i in range(bands+1)]
     self.bands=[[edges[i],edges[i+1]] for i in range(bands)]
     self.envellopes=[0]*bands
     self.smear=smear
@@ -276,6 +276,7 @@ def squareWave(freq, sampleRate, leng):
             timeSinceToggle = 0
 
     return ret
+    
 def sawWave(freq, sampleRate, leng):
   ret=[]
   curr=(sampleRate//freq)//2
@@ -320,6 +321,7 @@ def piano(freq, sampleRate, leng):
            0.1 * np.sin(2 * np.pi * freq * 3 * t)
 
     return taper(wave,fs*0.005,fs*leng)
+    
 def toSemiTones(note):
     if len(note) == 2:
         notePart = note[0]
@@ -398,7 +400,7 @@ def flute(freq, sampleRate, leng):
         (2, 0.1),
         (3, 0.05)
     ]
-    return taper(custom_synth(freq, sampleRate, leng, fluteHarmonics),fs//10,0)
+    return taper(customSynth(freq, sampleRate, leng, fluteHarmonics),fs//10,0)
 
 class PedalSystem:
   def __init__(self, sampleRate=44100, rllvrStp=3, maxLen=4):
@@ -483,16 +485,16 @@ class PedalSystem:
     speed: LFO frequency in Hz
     """
     output = []
-    max_delay = depth * self.sampleRate
+    maxDelay = depth * self.sampleRate
 
     for k in range(len(sample)):
       t = (self.time + k) / self.sampleRate
-      delay = max_delay * math.sin(2 * math.pi * speed * t)
+      delay = maxDelay * math.sin(2 * math.pi * speed * t)
       idx = (self.time + k - delay) % len(self.prev) - 1000
-      idx_floor = int(math.floor(idx))
-      idx_ceil = (idx_floor + 1) % len(self.prev)
-      frac = idx - idx_floor
-      y = (1 - frac) * self.prev[idx_floor] + frac * self.prev[idx_ceil]
+      idxFloor = int(math.floor(idx))
+      idxCeil = (idxFloor + 1) % len(self.prev)
+      frac = idx - idxFloor
+      y = (1 - frac) * self.prev[idxFloor] + frac * self.prev[idxCeil]
       output.append(y)
     return output
 
@@ -527,11 +529,11 @@ class PedalSystem:
     """
     Cannot be 1
     """
-    max_int = 2**(bits-1)-1
+    maxInt = 2**(bits-1)-1
 
     output = []
     for y in sample:
-      output.append(int(round(y * max_int)) / max_int)
+      output.append(int(round(y * maxInt)) / maxInt)
 
     return output
 
@@ -547,8 +549,8 @@ def snare(pitch,pitchMix,noiseburstFreqMin,noiseburstFreqMax,top,fall,decay,atta
     env=1-(i/min(int(fall*sr), len(t)))
     noise[i] *= (top + (1 - top) * env)
   t = np.arange(len(noise)) / sr
-  decay_env = np.exp(-5 * t / decay) if decay > 0 else np.ones(len(noise))
-  noise *= decay_env
+  decayEnv = np.exp(-5 * t / decay) if decay > 0 else np.ones(len(noise))
+  noise *= decayEnv
   noise=np.array(noise)
   return butter_bandpass_filter(noise,noiseburstFreqMin,noiseburstFreqMax,sr,order)+pitch*pitchMix
 
@@ -559,8 +561,8 @@ def hiHat(noiseburstFreqMin,noiseburstFreqMax,attack,decay,time,sr=44100,order=5
   for i in range(min(int(attack*sr),len(t))):
     noise[i]*=i/min(attack*sr,len(t))
   t = np.arange(len(noise)) / sr
-  decay_env = np.exp(-5 * t / decay) if decay > 0 else np.ones(len(noise))
-  noise *= decay_env
+  decayEnv = np.exp(-5 * t / decay) if decay > 0 else np.ones(len(noise))
+  noise *= decayEnv
   noise=np.array(noise)
   return noise
 
