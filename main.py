@@ -31,13 +31,15 @@ class Karplus:
     realTime=int((1/freq)*self.sr)
     output=[]
     for i in range(len(samples)):
-      self.buffer[self.t]=self.buffer[self.t-1]+math.tanh((samples[i]*(1-decay)+self.buffer[self.t-realTime]*decay-self.buffer[self.t-1])*hiCut/self.sr)*self.sr/hiCut
+      self.buffer[self.t]=self.buffer[self.t-1]+math.tanh((samples[i]*(1-decay)+self.buffer[self.t-realTime]*decay-self.buffer[self.t-1])*hiCut)/hiCut
       output.append(self.buffer[self.t-realTime])
       self.t+=1
       self.t=self.t%len(self.buffer)
     return output
+      
   def shortNoiseBurst(self):
     return [random.random()*(self.attack-i/self.sr) for i in range(int(self.attack*self.sr))]
+      
   def KarplusGenerate(self,Hz,decay=2,length=2,hiCut=100000000000):
     data=self.shortNoiseBurst()
     length*=self.sr
