@@ -96,7 +96,7 @@ def lpfStacked(a,sample,states):
         sample=states[i]
     return sample
 
-def filterWithAutomation(data,lowcut,hicut,times,sr=44100,order=5):
+def filterWithAutomation(data,hicut,times,sr=44100,order=5):
     data=np.asarray(data)
     n=len(data)
     out=np.zeros(n)
@@ -327,7 +327,7 @@ def customSynth(freq, sampleRate, leng, harmonics):
 
     return taper(wave, 0, sampleRate // 10)
 
-def piano(freq, sampleRate, leng):
+def piano(freq, sampleRate, leng, fs=44100):
     t = np.linspace(0, leng, int(sampleRate * leng), endpoint=False)
     wave = 0.6 * np.sin(2 * np.pi * freq * t) + \
            0.3 * np.sin(2 * np.pi * freq * 2 * t) + \
@@ -407,7 +407,7 @@ def violin(freq, sampleRate, leng):
     return ret[::-1]
 
 
-def flute(freq, sampleRate, leng):
+def flute(freq, sampleRate, leng, fs=44100):
     fluteHarmonics = [
         (1, 1.0),
         (2, 0.1),
