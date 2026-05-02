@@ -90,10 +90,10 @@ def stutter(sample,start,reps,duration,sr=44100):
 def cutToBeats(sample,bpm,beats,sr=44100):
   return sample[:int(beats*sr/(bpm/60))]
   
-def lpf_stacked(a, sample, prev_states):
-    for i in range(len(prev_states)):
-        sample=prev_states[i]+a*(sample-prev_states[i])
-        prev_states[i]=sample
+def lpfStacked(a, sample, prevStates):
+    for i in range(len(prevStates)):
+        sample=prevStates[i]+a*(sample-prevStates[i])
+        prevStates[i]=sample
     return sample
 
 def filterWithAutomation(data,lowcut,hicut,times,sr=44100,order=5):
@@ -104,7 +104,7 @@ def filterWithAutomation(data,lowcut,hicut,times,sr=44100,order=5):
   out=[data[0]]
   for i in range(1,n):
     a=(2*math.pi*cutoff[i])/(2*math.pi*cutoff[i]+sr)
-    out.append(lpf_stacked(a, data[i], out[i-min(i,4):]))
+    out.append(lpfStacked(a, data[i], out[i-min(i,4):]))
   return out
 
 class synth:
@@ -119,7 +119,7 @@ class synth:
 
 
   def noteToHz(self,note):
-    note_map = {
+    noteMap = {
         'C': 0, 'C#': 1, 'Db': 1,
         'D': 2, 'D#': 3, 'Eb': 3,
         'E': 4,
@@ -136,7 +136,7 @@ class synth:
       pitch = note[:2]
       octave = int(note[2])
 
-    midi = (octave + 1) * 12 + note_map[pitch]
+    midi = (octave + 1) * 12 + noteMap[pitch]
 
     n = midi - 69
 
@@ -203,7 +203,7 @@ class vocoder:
     self.smear=smear
     self.order=order
 
-  def moving_average(self,x):
+  def movingAverage(self,x):
     window=int(self.smear*self.sr)
     x = np.asarray(x)
 
@@ -217,7 +217,7 @@ class vocoder:
       signal=butter_bandpass_filter(self.modulator,self.bands[i][1],self.bands[i][0],self.sr,order=self.order)
       signal=np.array(signal)
       signal=abs(signal)
-      self.envellopes[i]=self.moving_average(signal)
+      self.envellopes[i]=self.movingAverage(signal)
 
   def applyEnvellopes(self):
     ret=np.zeros(len(self.carrier))
@@ -251,29 +251,29 @@ def adt(arr, d):
     transformed = [newArr[i] + newArr[i - d] for i in range(d, len(newArr))]
     return unpad(transformed)
 
-def rev_adt(arr, d):
-    padded_output = pad(arr, d)
-    recovered = [0]*len(padded_output)
-    for i in range(d, len(padded_output)):
-        recovered[i] = padded_output[i] - recovered[i - d]
+def revAdt(arr, d):
+    paddedOutput = pad(arr, d)
+    recovered = [0]*len(paddedOutput)
+    for i in range(d, len(paddedOutput)):
+        recovered[i] = paddedOutput[i] - recovered[i - d]
     return unpad(recovered)
 
 def squareWave(freq, sampleRate, leng):
     ret = []
     amplitude = 2000
     samples = int(leng * sampleRate)
-    period_samples = sampleRate / freq
-    half_period = period_samples / 2
+    periodSamples = sampleRate / freq
+    halfPeriod = periodSamples / 2
 
     curr = amplitude
-    time_since_toggle = 0
+    timeSinceToggle = 0
 
     for i in range(samples):
         ret.append(curr)
-        time_since_toggle += 1
-        if time_since_toggle >= half_period:
+        timeSinceToggle += 1
+        if timeSinceToggle >= halfPeriod:
             curr = -curr
-            time_since_toggle = 0
+            timeSinceToggle = 0
 
     return ret
 def sawWave(freq, sampleRate, leng):
@@ -304,7 +304,7 @@ def taper(arr,start,end):
         arr[-end:]*=np.linspace(1,0,end,endpoint=False)
     return arr
 
-def custom_synth(freq, sampleRate, leng, harmonics):
+def customSynth(freq, sampleRate, leng, harmonics):
     t = np.linspace(0, leng, int(sampleRate * leng), endpoint=False)
     wave = np.zeros_like(t)
 
@@ -322,10 +322,10 @@ def piano(freq, sampleRate, leng):
     return taper(wave,fs*0.005,fs*leng)
 def toSemiTones(note):
     if len(note) == 2:
-        note_part = note[0]
+        notePart = note[0]
         octave = int(note[1])
     else:
-        note_part = note[:2]
+        notePart = note[:2]
         octave = int(note[2])
 
     chromat = {
@@ -343,9 +343,9 @@ def toSemiTones(note):
         "B": 11
     }
 
-    semitones_from_C4 = (octave - 4) * 12 + chromat[note_part]
-    semitones_from_A4 = semitones_from_C4 - 9
-    return semitones_from_A4
+    semitonesFromC4 = (octave - 4) * 12 + chromat[notePart]
+    semitonesFromA4 = semitonesFromC4 - 9
+    return semitonesFromA4
 
 def noteToFreq(note):
     semi = toSemiTones(note)
@@ -360,8 +360,8 @@ def harmonica(freq, sampleRate, leng):
 
     noise = np.random.normal(0, 1, len(t))
 
-    filtered_noise = butter_bandpass_filter(noise, 1000, 3000, sampleRate)
-    wave += 0.05 * filtered_noise
+    filteredNoise = butter_bandpass_filter(noise, 1000, 3000, sampleRate)
+    wave += 0.05 * filteredNoise
 
     tremolo = 1 + 0.2 * np.sin(2 * np.pi * 5 * t)
     wave *= tremolo
