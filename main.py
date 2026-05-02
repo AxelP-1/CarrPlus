@@ -89,23 +89,36 @@ def stutter(sample,start,reps,duration,sr=44100):
 
 def cutToBeats(sample,bpm,beats,sr=44100):
   return sample[:int(beats*sr/(bpm/60))]
-  
-def lpfStacked(a, sample, prevStates):
-    for i in range(len(prevStates)):
-        sample=prevStates[i]+a*(sample-prevStates[i])
-        prevStates[i]=sample
+    
+def lpfStacked(a,sample,states):
+    for i in range(len(states)):
+        states[i]=states[i]+a*(sample-states[i])
+        sample=states[i]
     return sample
 
 def filterWithAutomation(data,lowcut,hicut,times,sr=44100,order=5):
-  data=np.asarray(data)
-  n=len(data)
-  t=np.arange(n)/sr
-  cutoff=np.interp(t,times,hicut)
-  out=[data[0]]
-  for i in range(1,n):
-    a=(2*math.pi*cutoff[i])/(2*math.pi*cutoff[i]+sr)
-    out.append(lpfStacked(a, data[i], out[i-min(i,4):]))
-  return out
+    data=np.asarray(data)
+    n=len(data)
+    out=np.zeros(n)
+    out[0]=data[0]
+    states=[data[0]]*order
+    j=0
+    for i in range(1,n):
+        t=i/sr
+        while j<len(times)-2 and t>times[j+1]:
+            j+=1
+        t0=times[j]
+        t1=times[j+1]
+        v0=hicut[j]
+        v1=hicut[j+1]
+        if t1!=t0:
+            frac=(t-t0)/(t1-t0)
+        else:
+            frac=0.0
+        cutoff=v0+frac*(v1-v0)
+        a=(2*math.pi*cutoff)/(2*math.pi*cutoff+sr)
+        out[i]=lpfStacked(a,data[i],states)
+    return out
 
 class synth:
   def __init__(self, sr, wavetype, a,d,s,r, bpm):
