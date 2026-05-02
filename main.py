@@ -15,7 +15,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5, padlen=33):
     y = sosfiltfilt(sos, data, padlen=padlen)
     return y
   
-def waveFolder(vals,foldfactor=1,mult=4,speedOfFolding=2,sinAmplitude=0.2):
+def waveFolder(vals,foldfactor=1.3,mult=4,speedOfFolding=2,sinAmplitude=0.2):
   return [math.tanh(x*mult)+foldfactor**(-abs(x*mult))*math.sin(x*mult*speedOfFolding)*sinAmplitude for x in vals]
 
 class Karplus:
