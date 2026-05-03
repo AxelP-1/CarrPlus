@@ -588,6 +588,10 @@ def kick(freqStart,freqEnd,fmFreq,fmAmount,attack,decay,time,timeAfterSweep,grit
   t=np.arange(0,time+timeAfterSweep,1/sr)
   freq=np.concatenate([freq,np.zeros(int(timeAfterSweep*sr))+freqEnd])
   fm=np.array(waveFolder(np.sin(2*np.pi*fmFreq*t),1.3,mult,2,0.2))*fmAmount
+  while len(fm)>len(freq):
+    freq=np.append(freq,[freq[-1]])
+  while len(freq)>len(fm):
+    fm=np.append(fm,[fm[-1]])
   phase=2*np.pi*np.cumsum(freq+fm)/sr
   sound=np.sin(phase)
   for i in range(min(int(attack*sr),len(t))):
