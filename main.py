@@ -20,7 +20,7 @@ def waveFolder(vals,foldfactor=1.3,mult=4,speedOfFolding=2,sinAmplitude=0.2):
 
 class Karplus:
   def __init__(self,bufferSize,attack=0.1,sampleRate=44100,release=0.1):
-    self.buffer=[0]*bufferSize*sampleRate
+    self.buffer=[0]*int(bufferSize*sampleRate)
     self.attack=attack
     self.sr=sampleRate
     self.t=0
