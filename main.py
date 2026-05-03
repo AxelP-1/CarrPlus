@@ -31,7 +31,7 @@ class Karplus:
     realTime=int((1/freq)*self.sr)
     output=[]
     for i in range(len(samples)):
-      self.buffer[self.t]=self.buffer[self.t-1]+math.tanh((samples[i]*(1-decay)+self.buffer[self.t-realTime]*decay-self.buffer[self.t-1])*hiCut/self.sr)*self.sr/hiCut
+      self.buffer[self.t]=self.buffer[self.t-1]+math.tanh((samples[i]+self.buffer[self.t-realTime]*decay-self.buffer[self.t-1])*hiCut/self.sr)*self.sr/hiCut
       output.append(self.buffer[self.t-realTime])
       self.t+=1
       self.t=self.t%len(self.buffer)
