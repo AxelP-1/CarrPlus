@@ -46,4 +46,6 @@ for i in range(len(beat)):
 beat=stutter(beat,0.5*8,3,0.25,sr=44100)
 beat=rhythmicVarispeed(beat,[1,0,0,-1,-1],[15,15.5,18,20,23])
 beat=filterWithAutomation(beat,[0,10000],[0,5])
+
+#Now you've read through the code, mess up the parameters and do whatever you want, have fun
 Audio(beat,rate=44100)
